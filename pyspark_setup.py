@@ -1,3 +1,4 @@
+## Got logic from this site here: http://renien.com/blog/accessing-pyspark-pycharm/
 import os
 import sys
 

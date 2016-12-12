@@ -1,5 +1,5 @@
 from numpy import genfromtxt
-import pyspark_setup
+import pyspark_setup # Need to import pre-requisits set up by pyspark.
 from pyspark import SparkContext, SparkConf
 csv_data = genfromtxt('home_data.csv', delimiter=',', names=True)
 
