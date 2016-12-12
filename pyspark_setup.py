@@ -1,9 +1,7 @@
 import os
 import sys
 
-os.environ['SPARK_HOME'] = 'C:\\Applications\\spark-1.6.1-bin-hadoop2.6'
-
-sys.path.append("%s\\python\\lib\\py4j-0.9-src.zip" % os.getenv('SPARK_HOME'))
+sys.path.append("%s\\python\\lib\\py4j-0.10.3-src.zip" % os.getenv('SPARK_HOME'))
 sys.path.append("%s\\python" % os.getenv('SPARK_HOME'))
 
 try:
