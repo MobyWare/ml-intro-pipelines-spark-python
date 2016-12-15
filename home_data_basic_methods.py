@@ -18,7 +18,7 @@ df = spark.read.csv('home_data.csv', header=True)
 df = df.withColumn("price", df["price"].cast(DoubleType()))\
                    .withColumn("sqft_living", df["sqft_living"].cast(DoubleType()))
                 
-#df.printSchema()
+print(df.columns)
 
 # Get training sets
 
@@ -32,11 +32,11 @@ stringifier = StringIndexer(inputCol="zipcode", outputCol="zipIndex")
 oneHotter = OneHotEncoder(inputCol="zipIndex", outputCol="zipVector")
 vectorizer = VectorAssembler(inputCols=["sqft_living", "zipVector"], outputCol="features")
 glr = GeneralizedLinearRegression(labelCol="price", family="gaussian", link="identity", maxIter=10, regParam=0.3)
-rf = RandomForestRegressor(labelCol="price")
-rfAdv = RandomForestRegressor(labelCol="price", numTrees=100, maxMemoryInMB=512, maxDepth=15)
-for alg in [glr, rf, rfAdv]:
-    print("+++++Method Start+++++")
-    simplePipeline = Pipeline(stages=[stringifier, oneHotter, vectorizer, alg])
+rf = RandomForestRegressor(labelCol="price", seed=1234)
+rfAdv = RandomForestRegressor(labelCol="price", seed=1234, numTrees=100, maxDepth=10, maxBins=100)
+for alg in [(glr, "Linear Regression"), (rf, "Random Forest (Default)"), (rfAdv, "Random Forest (Advanced)")]:
+    print("+++++%s Results+++++" % (alg[1]))
+    simplePipeline = Pipeline(stages=[stringifier, oneHotter, vectorizer, alg[0]])
     model = simplePipeline.fit(trainData)
 
     #Print Reslts
