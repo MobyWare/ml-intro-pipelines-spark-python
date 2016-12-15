@@ -33,7 +33,7 @@ oneHotter = OneHotEncoder(inputCol="zipIndex", outputCol="zipVector")
 vectorizer = VectorAssembler(inputCols=["sqft_living", "zipVector"], outputCol="features")
 glr = GeneralizedLinearRegression(labelCol="price", family="gaussian", link="identity", maxIter=10, regParam=0.3)
 rf = RandomForestRegressor(labelCol="price", seed=1234)
-rfAdv = RandomForestRegressor(labelCol="price", seed=1234, numTrees=100, maxDepth=10, maxBins=100)
+rfAdv = RandomForestRegressor(labelCol="price", seed=1234, numTrees=500, maxDepth=10, maxBins=100, minInstancesPerNode=5, featureSubsetStrategy="all")
 for alg in [(glr, "Linear Regression"), (rf, "Random Forest (Default)"), (rfAdv, "Random Forest (Advanced)")]:
     print("+++++%s Results+++++" % (alg[1]))
     simplePipeline = Pipeline(stages=[stringifier, oneHotter, vectorizer, alg[0]])
