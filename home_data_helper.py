@@ -15,10 +15,15 @@ def getTrainSet(path='home_data.csv', split=[0.7,0.3], sparkContext=None, applic
             .getOrCreate()
     
     df = sparkContext.read.csv(path, header=True)
-    df = df.withColumn("price", df["price"].cast(DoubleType()))\
-                    .withColumn("sqft_living", df["sqft_living"].cast(DoubleType()))
+    df = df\
+        .withColumn("price", df["price"].cast(DoubleType()))\
+        .withColumn("sqft_living", df["sqft_living"].cast(DoubleType()))\
+        .withColumn("grade", df["grade"].cast(IntegerType()))\
+        .withColumn("bedrooms", df["bedrooms"].cast(IntegerType()))
                     
     print(df.columns)
+
+    df.select("price", "sqft_living", "zipcode", "yr_built").show(5)
 
     # Get training sets
 
@@ -58,3 +63,28 @@ def displayEvaluationResults(trainingData, testData, steps, algorithms, algorith
             evaluator = RegressionEvaluator(labelCol="price", predictionCol="prediction", metricName="rmse")
             rmse = evaluator.evaluate(predictions)
             print("RMSE is: {}".format(rmse))
+
+def getCategoricalTransformers(columns):
+    result = []
+    idxColumnSuffix = "Index"
+    vectorColumnSuffix = "Vector"
+
+    for column in columns:
+        result.append(StringIndexer(inputCol=column, outputCol=column + "Index"))
+        result.append(OneHotEncoder(inputCol=column + idxColumnSuffix, outputCol=column + vectorColumnSuffix))
+    
+    return result
+
+def getPipelineTransformers(nonCategoricalColumns, categoricalColumns=[]):
+    result = []
+    columns = []
+
+    if categoricalColumns is None or len(categoricalColumns) > 0:
+        result.extend(getCategoricalTransformers(categoricalColumns))
+        columns.extend([transformer.getOutputCol() for transformer in result])
+    
+    columns.extend(nonCategoricalColumns)
+    result.append(VectorAssembler(inputCols=columns, outputCol="features"))
+
+    return result
+
